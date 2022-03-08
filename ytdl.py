@@ -4,16 +4,26 @@ import subprocess
 import shlex
 import colorama
 import sys
+import ctypes
 colorama.init(convert=True)
+had_output = bool()
 
 def run_command(command):
     process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    had_output = False
+    end_result = str()
     while True:
         out = process.stdout.read(1).decode()
         if out == '' and process.poll() is not None:
             break
         if out != '':
+            had_output = True
             sys.stdout.write(out)
+            end_result += out
+    if not had_output:
+        raise ValueError("No output. Check if you entered the parameters or the url right.")
+    if "[error]" in end_result.lower():
+        raise Exception("Something went wrong. I don't know. Look above...")
 
 def main():
     link = pyperclip.paste()
@@ -38,11 +48,18 @@ def main():
         case "l":
             main()
 
+    print(f"{colorama.Fore.GREEN}[Task done!]{colorama.Style.RESET_ALL}")
+    ctypes.windll.user32.FlashWindow(ctypes.windll.kernel32.GetConsoleWindow(), True)
+    input()
+
+    return True
+
 if __name__ == "__main__":
     while True:
         try:
-            main()
+            if main():
+                break
         except Exception:
-            print(traceback.format_exc())
-            print(f"{colorama.Fore.RED}Execution failed. Press any button to try again or press ctrl+c to exit.{colorama.Style.RESET_ALL}")
+            print(f"{colorama.Fore.RED}{traceback.format_exc()}{colorama.Style.RESET_ALL}")
+            print(f"{colorama.Fore.RED}[Execution failed. Press any button to try again or press ctrl+c to exit.]{colorama.Style.RESET_ALL}")
             input()
