@@ -39,9 +39,10 @@ def main():
             main()
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception:
-        print(traceback.format_exc())
-        print("Press any button to exit.")
-        input()
+    while True:
+        try:
+            main()
+        except Exception:
+            print(traceback.format_exc())
+            print(f"{colorama.Fore.RED}Execution failed. Press any button to try again or press ctrl+c to exit.{colorama.Style.RESET_ALL}")
+            input()
